@@ -13,8 +13,8 @@ $_['tab_general']										= 'Основное';
 
 $_['tab_product']										= 'Выгрузка номенклатуры';
 	$_['product_general_fieldset']						= 'Основное';
-		$_['product_general_instock_stock_status']		= 'Состояние на складе при наличии товара';
-		$_['product_general_outofstock_stock_status']	= 'Состояние на складе при отсутствии товара';
+		$_['product_general_default_stock_status']		= 'Состоянии на складе при отсутствии товара';
+
 	$_['watermark_fieldset']							= 'Водяные знаки';
 		$_['watermark_apply']							= 'Накладывать водяные знаки';
 		$_['watermark_image']							= 'Изображение';

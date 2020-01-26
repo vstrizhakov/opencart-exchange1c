@@ -859,10 +859,6 @@ class ModelExtensionExchange1c extends Model {
 
 		$this->load->model('tool/image');
 
-		$quantity = isset($product['quantity']) ? $product['quantity'] : (isset($data['quantity']) ? $data['quantity']: 0);
-
-		$stock_status_id = $quantity > 0 ? $this->config->get('exchange1c_instock_stock_status_id') : $this->config->get('exchange1c_outofstock_stock_status_id');
-
 		$result = array(
 			'product_description' => array()
 			,'model'    => (isset($product['model'])) ? $product['model'] : (isset($data['model']) ? $data['model']: '')
@@ -876,10 +872,10 @@ class ModelExtensionExchange1c extends Model {
 			,'location'     => (isset($product['location'])) ? $product['location'] : (isset($data['location']) ? $data['location']: '')
 			,'price'        => (isset($product['price'])) ? $product['price'] : (isset($data['price']) ? $data['price']: 0)
 			,'tax_class_id' => (isset($product['tax_class_id'])) ? $product['tax_class_id'] : (isset($data['tax_class_id']) ? $data['tax_class_id']: 0)
-			,'quantity'     => $quantity
+			,'quantity'     => isset($product['quantity']) ? $product['quantity'] : (isset($data['quantity']) ? $data['quantity']: 0)
 			,'minimum'      => (isset($product['minimum'])) ? $product['minimum'] : (isset($data['minimum']) ? $data['minimum']: 1)
 			,'subtract'     => (isset($product['subtract'])) ? $product['subtract'] : (isset($data['subtract']) ? $data['subtract']: 1)
-			,'stock_status_id'  => $stock_status_id
+			,'stock_status_id'  => $this->config->get('exchange1c_default_stock_status_id')
 			,'shipping'         => (isset($product['shipping'])) ? $product['shipping'] : (isset($data['shipping']) ? $data['shipping']: 1)
 			,'keyword'          => (isset($product['keyword'])) ? $product['keyword'] : (isset($data['keyword']) ? $data['keyword']: '')
 			,'image'            => (isset($product['image'])) ? $product['image'] : (isset($data['image']) ? $data['image']: '')
