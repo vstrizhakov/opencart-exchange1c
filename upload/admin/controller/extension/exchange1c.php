@@ -143,13 +143,6 @@ class ControllerExtensionExchange1c extends Controller {
 		else {
 			$data['exchange1c_flush_attribute'] = $this->config->get('exchange1c_flush_attribute');
 		}
-
-		if (isset($this->request->post['exchange1c_fill_parent_cats'])) {
-			$data['exchange1c_fill_parent_cats'] = $this->request->post['exchange1c_fill_parent_cats'];
-		}
-		else {
-			$data['exchange1c_fill_parent_cats'] = $this->config->get('exchange1c_fill_parent_cats');
-		}
 		
 		if (isset($this->request->post['exchange1c_relatedoptions'])) {
 			$data['exchange1c_relatedoptions'] = $this->request->post['exchange1c_relatedoptions'];
@@ -512,10 +505,6 @@ class ControllerExtensionExchange1c extends Controller {
 		if (strpos($filename, 'import') !== false) {
 			
 			$this->model_extension_exchange1c->parseImport($filename, $language_id);
-
-			if ($this->config->get('exchange1c_fill_parent_cats')) {
-				$this->model_extension_exchange1c->fillParentsCategories();
-			}
 
             // Только если выбран способ deadcow_seo
 			if ($this->config->get('exchange1c_seo_url') == 1) {

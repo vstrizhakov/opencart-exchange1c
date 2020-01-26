@@ -829,10 +829,6 @@ class ModelExtensionExchange1c extends Model {
 				);
 			}
 
-			if (method_exists($this->model_catalog_product, 'getProductMainCategoryId')) {
-				$data = array_merge($data, array('main_category_id' => $this->model_catalog_product->getProductMainCategoryId($product_id)));
-			}
-			
 			$data = array_merge($data, array('product_discount' => $this->model_catalog_product->getProductDiscounts($product_id)));
 			$data = array_merge($data, array('product_special' => $this->model_catalog_product->getProductSpecials($product_id)));
 			$data = array_merge($data, array('product_download' => $this->model_catalog_product->getProductDownloads($product_id)));
@@ -863,7 +859,7 @@ class ModelExtensionExchange1c extends Model {
 
 		$this->load->model('tool/image');
 
-		$quantity = isset($product['quantity']) ? $product['quantity'] : (isset($data['quantity']) ? $data['мquantity']: 0);
+		$quantity = isset($product['quantity']) ? $product['quantity'] : (isset($data['quantity']) ? $data['quantity']: 0);
 
 		$stock_status_id = $quantity > 0 ? $this->config->get('exchange1c_instock_stock_status_id') : $this->config->get('exchange1c_outofstock_stock_status_id');
 
@@ -897,7 +893,6 @@ class ModelExtensionExchange1c extends Model {
 			,'status'           => (isset($product['status'])) ? $product['status'] : (isset($data['status']) ? $data['status']: 1)
 			,'sort_order'       => (isset($product['sort_order'])) ? $product['sort_order'] : (isset($data['sort_order']) ? $data['sort_order']: 1)
 			,'manufacturer_id'  => (isset($product['manufacturer_id'])) ? $product['manufacturer_id'] : (isset($data['manufacturer_id']) ? $data['manufacturer_id']: 0)
-			,'main_category_id' => 0
 			,'product_store'    => array(0)
 			,'product_option'   => array()
 			,'points'           => (isset($product['points'])) ? $product['points'] : (isset($data['points']) ? $data['points']: 0)
@@ -948,17 +943,14 @@ class ModelExtensionExchange1c extends Model {
 				foreach ($product['category_1c_id'] as $category_item) {
 					if (isset($this->CATEGORIES[(string)$category_item])) {
 						$result['product_category'][] = (int)$this->CATEGORIES[(string)$category_item];
-						$result['main_category_id'] = 0;
 					}
 				}
 			} else {
 				$product['category_1c_id'] = (string)$product['category_1c_id'];
 				if (isset($this->CATEGORIES[$product['category_1c_id']])) {
 					$result['product_category'] = array((int)$this->CATEGORIES[$product['category_1c_id']]);
-					$result['main_category_id'] = (int)$this->CATEGORIES[$product['category_1c_id']];
 				} else {
 					$result['product_category'] = isset($data['product_category']) ? $data['product_category'] : array(0);
-					$result['main_category_id'] = isset($data['main_category_id']) ? $data['main_category_id'] : 0;
 				}
 			}
 		}
@@ -1082,6 +1074,7 @@ class ModelExtensionExchange1c extends Model {
 
 		$this->load->model('catalog/product');
 
+		unset($product['category_1c_id']);
 		$product_old = $this->initProduct($product, $product_old, $language_id);
 
 		//Редактируем продукт
@@ -1201,40 +1194,7 @@ class ModelExtensionExchange1c extends Model {
 	 * Заполняет продуктами родительские категории
 	 */
 	public function fillParentsCategories() {
-		$this->load->model('catalog/product');
-		if (!method_exists($this->model_catalog_product, 'getProductMainCategoryId')) {
-			$this->log->write("  !!!: Заполнение родительскими категориями отменено. Отсутствует main_category_id.");
-			return;
-		}
 
-		$this->db->query('DELETE FROM `' .DB_PREFIX . 'product_to_category` WHERE `main_category` = 0');
-		$query = $this->db->query('SELECT * FROM `' . DB_PREFIX . 'product_to_category` WHERE `main_category` = 1');
-
-		if ($query->num_rows) {
-			foreach ($query->rows as $row) {
-				$parents = $this->findParentsCategories($row['category_id']);
-				foreach ($parents as $parent) {
-					if ($row['category_id'] != $parent && $parent != 0) {
-						$this->db->query('INSERT INTO `' .DB_PREFIX . 'product_to_category` SET `product_id` = ' . $row['product_id'] . ', `category_id` = ' . $parent . ', `main_category` = 0');
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Ищет все родительские категории
-	 *
-	 * @param	int
-	 * @return	array
-	 */
-	private function findParentsCategories($category_id) {
-		$query = $this->db->query('SELECT * FROM `'.DB_PREFIX.'category` WHERE `category_id` = "'.$category_id.'"');
-		if (isset($query->row['parent_id'])) {
-			$result = $this->findParentsCategories($query->row['parent_id']);
-		}
-		$result[] = $category_id;
-		return $result;
 	}
 
 	/**
