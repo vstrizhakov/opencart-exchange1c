@@ -1,6 +1,30 @@
 <?php
+function transArrayString(&$item, $key)
+{
+	$item = transString($item);
+}
 
-class ModelToolExchange1c extends Model {
+/**
+ * Транслиетрирует RUS->ENG
+ * @param string $aString
+ * @return string type
+ */
+function transString($aString) {
+	$rus = array(" ", "/", "*", "-", "+", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "[", "]", "{", "}", "~", ";", ":", "'", "\"", "<", ">", ",", ".", "?", "А", "Б", "В", "Г", "Д", "Е", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ъ", "Ы", "Ь", "Э", "а", "б", "в", "г", "д", "е", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ъ", "ы", "ь", "э", "ё",  "ж",  "ц",  "ч",  "ш",  "щ",   "ю",  "я",  "Ё",  "Ж",  "Ц",  "Ч",  "Ш",  "Щ",   "Ю",  "Я");
+	$lat = array("-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-",  "-", "-", "-", "-", "-", "-", "a", "b", "v", "g", "d", "e", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "",  "i", "",  "e", "a", "b", "v", "g", "d", "e", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "",  "i", "",  "e", "yo", "zh", "ts", "ch", "sh", "sch", "yu", "ya", "yo", "zh", "ts", "ch", "sh", "sch", "yu", "ya");
+
+	$string = str_replace($rus, $lat, $aString);
+
+	while (mb_strpos($string, '--')) {
+		$string = str_replace('--', '-', $string);
+	}
+
+	$string = strtolower(trim($string, '-'));
+
+	return $string;
+}
+
+class ModelExtensionExchange1c extends Model {
 
 	private $CATEGORIES = array();
 	private $PROPERTIES = array();
@@ -207,10 +231,10 @@ class ModelToolExchange1c extends Model {
 		if (!empty($config_price_type) && count($config_price_type) > 0) {
 			$discount_price_type = array();
 			foreach ($config_price_type as $obj) {
-				$discount_price_type[$obj['keyword']] = array(
-					'customer_group_id' => $obj['customer_group_id'],
-					'quantity' => $obj['quantity'],
-					'priority' => $obj['priority']
+				$discount_price_type[$obj->keyword] = array(
+					'customer_group_id' => $obj->customer_group_id,
+					'quantity' => $obj->quantity,
+					'priority' => $obj->priority
 				); 
 			}
 		}
@@ -241,13 +265,13 @@ class ModelToolExchange1c extends Model {
 					if ($offer->Цены) {
 	
 						// Первая цена по умолчанию - $config_price_type_main
-						if (!$config_price_type_main['keyword']) {
+						if (!$config_price_type_main->keyword) {
 							$data['price'] = (float)$offer->Цены->Цена->ЦенаЗаЕдиницу;
 						}
 						else {
 							if ($offer->Цены->Цена->ИдТипаЦены) {
 								foreach ($offer->Цены->Цена as $price) {
-									if ($price_types[(string)$price->ИдТипаЦены] == $config_price_type_main['keyword']) {
+									if ($price_types[(string)$price->ИдТипаЦены] == $config_price_type_main->keyword) {
 										$data['price'] = (float)$price->ЦенаЗаЕдиницу;
 										if ($enable_log)
 											$this->log->write(" найдена цена  > " . $data['price']);
@@ -468,7 +492,7 @@ class ModelToolExchange1c extends Model {
 				$data['1c_id'] = $uuid[0];
 
 				$data['model'] = $product->Артикул? (string)$product->Артикул : 'не задана';
-				$data['name'] = $product->Наименование? (string)$product->Наименование : 'не задано';
+				$data['name'] = $data['meta_title'] = $product->Наименование ? (string)$product->Наименование : 'не задано';
 				$data['weight'] = $product->Вес? (float)$product->Вес : null;
 				$data['sku'] = $product->Артикул? (string)$product->Артикул : '';
 
@@ -545,8 +569,7 @@ class ModelToolExchange1c extends Model {
 												'meta_keyword' => '',
 												'meta_description' => '',
 												'description' => '',
-												'seo_title' => '',
-												'seo_h1' => ''
+												'meta_title' => $manufacturer_name,
 											),
 										);
 
@@ -555,18 +578,13 @@ class ModelToolExchange1c extends Model {
 
 										//только если тип 'translit'
 										if ($this->config->get('exchange1c_seo_url') == 2) {
-											$man_name = "brand-" . $manufacturer_name;
+											$man_name = $manufacturer_name;
 											$this->setSeoURL('manufacturer_id', $manufacturer_id, $man_name);
 										}
 									}
 								break;
-
-								case 'oc.seo_h1':
-									$data['seo_h1'] = $attribute_value;
-								break;
-
-								case 'oc.seo_title':
-									$data['seo_title'] = $attribute_value;
+								case 'oc.meta_title':
+									$data['meta_title'] = $attribute_value;
 								break;
 
 								case 'oc.sort_order':
@@ -644,13 +662,13 @@ class ModelToolExchange1c extends Model {
 				,'meta_keyword'     => (isset($data['category_description'][$language_id]['meta_keyword'])) ? $data['category_description'][$language_id]['meta_keyword'] : ''
 				,'meta_description'	=> (isset($data['category_description'][$language_id]['meta_description'])) ? $data['category_description'][$language_id]['meta_description'] : ''
 				,'description'		  => (isset($category->Описание)) ? (string)$category->Описание : ((isset($data['category_description'][$language_id]['description'])) ? $data['category_description'][$language_id]['description'] : '')
-				,'seo_title'        => (isset($data['category_description'][$language_id]['seo_title'])) ? $data['category_description'][$language_id]['seo_title'] : ''
-				,'seo_h1'           => (isset($data['category_description'][$language_id]['seo_h1'])) ? $data['category_description'][$language_id]['seo_h1'] : ''
+				,'meta_title'        => (string)$category->Наименование
 			),
 		);
 
 		return $result;
 	}
+
 
 
 	/**
@@ -691,8 +709,16 @@ class ModelToolExchange1c extends Model {
 
 			//только если тип 'translit'
 			if ($this->config->get('exchange1c_seo_url') == 2) {
-				$cat_name = "category-" . $data['parent_id'] . "-" . $data['category_description'][$language_id]['name'];
-				$this->setSeoURL('category_id', $category_id, $cat_name);
+				$cat_path = [];
+				$cat_path[] = $data['category_description'][$language_id]['name'];
+				while ($data["parent_id"])
+				{
+					$data = $this->model_catalog_category->getCategory($data["parent_id"]);
+					$cat_path[] = $data['name'];
+				}
+				$cat_path[] = "category";
+				$cat_path = array_reverse($cat_path);
+				$this->setSeoURL('category_id', $category_id, $cat_path);
 			}
 
 			if ($category->Группы) $this->insertCategory($category->Группы->Группа, $category_id, $language_id);
@@ -700,7 +726,7 @@ class ModelToolExchange1c extends Model {
 
 		unset($xml);
 	}
-
+	
 
 	/**
 	 * Создает атрибуты из свойств
@@ -820,7 +846,7 @@ class ModelToolExchange1c extends Model {
 			}
 		}
 
-		$query = $this->db->query('SELECT * FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "product_id='.$product_id.'"');
+		$query = $this->db->query('SELECT * FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "product_id='.$product_id.'"');
 		if ($query->num_rows) $data['keyword'] = $query->row['keyword'];
 
 		return $data;
@@ -837,6 +863,10 @@ class ModelToolExchange1c extends Model {
 
 		$this->load->model('tool/image');
 
+		$quantity = isset($product['quantity']) ? $product['quantity'] : (isset($data['quantity']) ? $data['мquantity']: 0);
+
+		$stock_status_id = $quantity > 0 ? $this->config->get('exchange1c_instock_stock_status_id') : $this->config->get('exchange1c_outofstock_stock_status_id');
+
 		$result = array(
 			'product_description' => array()
 			,'model'    => (isset($product['model'])) ? $product['model'] : (isset($data['model']) ? $data['model']: '')
@@ -850,10 +880,10 @@ class ModelToolExchange1c extends Model {
 			,'location'     => (isset($product['location'])) ? $product['location'] : (isset($data['location']) ? $data['location']: '')
 			,'price'        => (isset($product['price'])) ? $product['price'] : (isset($data['price']) ? $data['price']: 0)
 			,'tax_class_id' => (isset($product['tax_class_id'])) ? $product['tax_class_id'] : (isset($data['tax_class_id']) ? $data['tax_class_id']: 0)
-			,'quantity'     => (isset($product['quantity'])) ? $product['quantity'] : (isset($data['quantity']) ? $data['quantity']: 0)
+			,'quantity'     => $quantity
 			,'minimum'      => (isset($product['minimum'])) ? $product['minimum'] : (isset($data['minimum']) ? $data['minimum']: 1)
 			,'subtract'     => (isset($product['subtract'])) ? $product['subtract'] : (isset($data['subtract']) ? $data['subtract']: 1)
-			,'stock_status_id'  => $this->config->get('config_stock_status_id')
+			,'stock_status_id'  => $stock_status_id
 			,'shipping'         => (isset($product['shipping'])) ? $product['shipping'] : (isset($data['shipping']) ? $data['shipping']: 1)
 			,'keyword'          => (isset($product['keyword'])) ? $product['keyword'] : (isset($data['keyword']) ? $data['keyword']: '')
 			,'image'            => (isset($product['image'])) ? $product['image'] : (isset($data['image']) ? $data['image']: '')
@@ -888,8 +918,7 @@ class ModelToolExchange1c extends Model {
 		$result['product_description'] = array(
 			$language_id => array(
 				'name'              => isset($product['name']) ? $product['name'] : (isset($data['product_description'][$language_id]['name']) ? $data['product_description'][$language_id]['name']: 'Имя не задано')
-				,'seo_h1'           => isset($product['seo_h1']) ? $product['seo_h1']: (isset($data['product_description'][$language_id]['seo_h1']) ? $data['product_description'][$language_id]['seo_h1']: '')
-				,'seo_title'        => isset($product['seo_title']) ? $product['seo_title']: (isset($data['product_description'][$language_id]['seo_title']) ? $data['product_description'][$language_id]['seo_title']: '')
+				,'meta_title'        => isset($product['meta_title']) ? $product['meta_title']: (isset($data['product_description'][$language_id]['meta_title']) ? $data['product_description'][$language_id]['meta_title']: '')
 				,'meta_keyword'     => isset($product['meta_keyword']) ? trim($product['meta_keyword']): (isset($data['product_description'][$language_id]['meta_keyword']) ? $data['product_description'][$language_id]['meta_keyword']: '')
 				,'meta_description' => isset($product['meta_description']) ? trim($product['meta_description']): (isset($data['product_description'][$language_id]['meta_description']) ? $data['product_description'][$language_id]['meta_description']: '')
 				,'description'      => isset($product['description']) ? nl2br($product['description']): (isset($data['product_description'][$language_id]['description']) ? $data['product_description'][$language_id]['description']: '')
@@ -976,7 +1005,7 @@ class ModelToolExchange1c extends Model {
 			
 			if ($this->config->get('exchange1c_dont_use_artsync') || empty($data['sku'])) {
 				$this->load->model('catalog/product');
-				$product_id =	$this->model_catalog_product->addProduct($data);
+				$product_id = $this->model_catalog_product->addProduct($data);
 			} else {
 				// Проверяем, существует ли товар с тем-же артикулом
 				// Если есть, то обновляем его
@@ -1064,31 +1093,17 @@ class ModelToolExchange1c extends Model {
 	 * Устанавливает SEO URL (ЧПУ) для заданного товара
 	 *
 	 * @param 	inf
-	 * @param 	string
+	 * @param 	array
 	 */
-	private function setSeoURL($url_type, $element_id, $element_name) {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "url_alias` WHERE `query` = '" . $url_type . "=" . $element_id . "'");
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "url_alias` SET `query` = '" . $url_type . "=" . $element_id ."', `keyword`='" . $this->transString($element_name) . "'");
-	}
-
-	/**
-	 * Транслиетрирует RUS->ENG
-	 * @param string $aString
-	 * @return string type
-	 */
-	private function transString($aString) {
-		$rus = array(" ", "/", "*", "-", "+", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "[", "]", "{", "}", "~", ";", ":", "'", "\"", "<", ">", ",", ".", "?", "А", "Б", "В", "Г", "Д", "Е", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ъ", "Ы", "Ь", "Э", "а", "б", "в", "г", "д", "е", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ъ", "ы", "ь", "э", "ё",  "ж",  "ц",  "ч",  "ш",  "щ",   "ю",  "я",  "Ё",  "Ж",  "Ц",  "Ч",  "Ш",  "Щ",   "Ю",  "Я");
-		$lat = array("-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-",  "-", "-", "-", "-", "-", "-", "a", "b", "v", "g", "d", "e", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "",  "i", "",  "e", "a", "b", "v", "g", "d", "e", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "",  "i", "",  "e", "yo", "zh", "ts", "ch", "sh", "sch", "yu", "ya", "yo", "zh", "ts", "ch", "sh", "sch", "yu", "ya");
-
-		$string = str_replace($rus, $lat, $aString);
-
-		while (mb_strpos($string, '--')) {
-			$string = str_replace('--', '-', $string);
-		}
-
-		$string = strtolower(trim($string, '-'));
-
-		return $string;
+	private function setSeoURL($url_type, $element_id, $element_path) {
+		if (!is_array($element_path))
+			return;
+		array_walk($element_path, 'transArrayString');
+		$element_name = implode('/', $element_path);
+		$this->log->write($element_name);
+		$lang_id = (int)$this->config->get("config_language_id");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "seo_url` WHERE `query` = '" . $url_type . "=" . $element_id . "'");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "seo_url` SET `query` = '" . $url_type . "=" . $element_id ."', `keyword`='" . $element_name . "', language_id='" . $lang_id . "'");
 	}
 
 	/**
@@ -1325,9 +1340,9 @@ class ModelToolExchange1c extends Model {
 			$this->db->query('TRUNCATE TABLE `' . DB_PREFIX . 'option`');
 			if ($enable_log)
 				$this->log->write('TRUNCATE TABLE `' . DB_PREFIX . 'option`');
-			$this->db->query('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%product_id=%"');
+			$this->db->query('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%product_id=%"');
 			if ($enable_log)
-				$this->log->write('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%product_id=%"');
+				$this->log->write('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%product_id=%"');
 		}
 
 		// Очищает таблицы категорий
@@ -1352,9 +1367,9 @@ class ModelToolExchange1c extends Model {
 			$this->db->query('TRUNCATE TABLE ' . DB_PREFIX . 'category_to_1c');
 			if ($enable_log)
 				$this->log->write('TRUNCATE TABLE ' . DB_PREFIX . 'category_to_1c');
-			$this->db->query('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%category_id=%"');
+			$this->db->query('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%category_id=%"');
 			if ($enable_log)
-				$this->log->write('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%category_id=%"');
+				$this->log->write('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%category_id=%"');
 		}
 
 		// Очищает таблицы от всех производителей
@@ -1377,9 +1392,9 @@ class ModelToolExchange1c extends Model {
 			$this->db->query('TRUNCATE TABLE ' . DB_PREFIX . 'manufacturer_to_store');
 			if ($enable_log)
 				$this->log->write('TRUNCATE TABLE ' . DB_PREFIX . 'manufacturer_to_store');
-			$this->db->query('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%manufacturer_id=%"');
+			$this->db->query('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%manufacturer_id=%"');
 			if ($enable_log)
-				$this->log->write('DELETE FROM ' . DB_PREFIX . 'url_alias WHERE query LIKE "%manufacturer_id=%"');
+				$this->log->write('DELETE FROM ' . DB_PREFIX . 'seo_url WHERE query LIKE "%manufacturer_id=%"');
 		}
 
 		// Очищает атрибуты

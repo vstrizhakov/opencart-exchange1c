@@ -1,0 +1,482 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button onclick="$('#form').submit();" type="submit" form="form-analytics" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Сохранить"><i class="fa fa-save"></i></button>
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_back }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb['href'] }}">{{ breadcrumb['text'] }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    {% if (error_warning) %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-pencil"></i>
+          {{ editing }}
+        </h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active">
+              <a href="#tab-general" data-toggle="tab" aria-expanded="true">{{ tab_general }}</a>
+            </li>
+            <li>
+              <a href="#tab-connection-settings" data-toggle="tab" aria-expanded="false">{{ tab_connection_settings }}</a>
+            </li>
+            <li>
+              <a href="#tab-product" data-toggle="tab" aria-expanded="false">{{ tab_product }}</a>
+            </li>
+            <li>
+              <a href="#tab-order" data-toggle="tab" aria-expanded="false">{{ tab_order }}</a>
+            </li>
+            <li>
+              <a href="#tab-manual" data-toggle="tab" aria-expanded="false">{{ tab_manual }}</a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group required">
+                <label for="exchange1c_status" class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="exchange1c_status" id="exchange1c_status" class="form-control">
+                      <option value="0" {% if not exchange1c_status %} selected="selected" {% endif %}>{{ text_disabled }}</option>    
+                      <option value="1" {% if exchange1c_status %} selected="selected" {% endif %}>{{ text_enabled }}</option>                
+                  </select>
+                </div>
+              </div>
+              <fieldset>
+                <legend>{{ actions_log_fieldset }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_full_log" class="col-sm-2 control-label">{{ actions_log_write }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_full_log" {% if (exchange1c_full_log == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_full_log" {% if (exchange1c_full_log == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="tab-pane" id="tab-connection-settings">
+              <fieldset>
+                <legend>{{ connection_settings_general }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_username" class="col-sm-2 control-label">
+                    {{ entry_username }}
+                  </label>
+                  <div class="col-sm-10">
+                    <input name="exchange1c_username" id="exchange1c_username" type="text" value="{{ exchange1c_username }}" class="form-control" placeholder="{{ entry_username }}">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_password" class="col-sm-2 control-label">
+                    {{ entry_password }}
+                  </label>
+                  <div class="col-sm-10">
+                      <input name="exchange1c_password" type="password" id="exchange1c_password" value="{{ exchange1c_password }}" class="form-control" placeholder="{{ entry_password }}">
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{{ connection_settings_security }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_allow_ip" class="col-sm-2 control-label">
+                    <span data-toggle="tooltip" data-original-title="{{ entry_allow_ip_tooltip }}">{{ entry_allow_ip }}</span>
+                  </label>
+                  <div class="col-sm-10">
+                    <textarea class="form-control" id="exchange1c_allow_ip" name="exchange1c_allow_ip" rows="5">{{ exchange1c_allow_ip }}</textarea>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="tab-pane" id="tab-product">
+              <fieldset>
+                <legend>{{ product_general_fieldset }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_seo_url" class="col-sm-2 control-label">{{ entry_seo_url }}</label>
+                  <div class="col-sm-10">
+                    <select name="exchange1c_seo_url" id="exchange1c_seo_url" class="form-control">
+                        <option value="0" {% if (exchange1c_seo_url == 0) %} selected="" {% endif %}>{{ text_disabled }}</option>
+                        <option value="2" {% if (exchange1c_seo_url == 2) %} selected="" {% endif %}>{{ entry_seo_url_translit }}</option>
+                      </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_instock_stock_status_id" class="col-sm-2 control-label">{{ product_general_instock_stock_status }}</label>
+                  <div class="col-sm-10">
+                    <select name="exchange1c_instock_stock_status_id" id="exchange1c_instock_stock_status_id" class="form-control">
+                      {% for stock_status in stock_statuses %}
+                        <option value="{{ stock_status['stock_status_id'] }}" {% if exchange1c_instock_stock_status_id == stock_status['stock_status_id'] %} selected="selected" {% endif %}>{{ stock_status['name'] }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_outofstock_stock_status_id" class="col-sm-2 control-label">{{ product_general_outofstock_stock_status }}</label>
+                  <div class="col-sm-10">
+                    <select name="exchange1c_outofstock_stock_status_id" id="exchange1c_outofstock_stock_status_id" class="form-control">
+                      {% for stock_status in stock_statuses %}
+                        <option value="{{ stock_status['stock_status_id'] }}" {% if exchange1c_outofstock_stock_status_id == stock_status['stock_status_id'] %} selected="selected" {% endif %}>{{ stock_status['name'] }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_flush_product" class="col-sm-2 control-label">{{ entry_flush_product }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_flush_product" {% if (exchange1c_flush_product == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_flush_product" {% if (exchange1c_flush_product == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_flush_category" class="col-sm-2 control-label">{{ entry_flush_category }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_flush_category" {% if (exchange1c_flush_category == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_flush_category" {% if (exchange1c_flush_category == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_flush_manufacturer" class="col-sm-2 control-label">{{ entry_flush_manufacturer }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_flush_manufacturer" {% if (exchange1c_flush_manufacturer == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_flush_manufacturer" {% if (exchange1c_flush_manufacturer == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_flush_attribute" class="col-sm-2 control-label">{{ entry_flush_attribute }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_flush_attribute" {% if (exchange1c_flush_attribute == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_flush_attribute" {% if (exchange1c_flush_attribute == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_flush_quantity" class="col-sm-2 control-label">{{ entry_flush_quantity }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_flush_quantity" {% if (exchange1c_flush_quantity == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_flush_quantity" {% if (exchange1c_flush_quantity == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_fill_parent_cats" class="col-sm-2 control-label">{{ entry_fill_parent_cats}}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_fill_parent_cats" {% if (exchange1c_fill_parent_cats == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_fill_parent_cats" {% if (exchange1c_fill_parent_cats == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_relatedoptions" class="col-sm-2 control-label">
+                    <span data-toggle="tooltip" data-original-title="{{ entry_relatedoptions_help }}">{{ entry_relatedoptions }}</span>
+                  </label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_relatedoptions" {% if (exchange1c_relatedoptions == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_relatedoptions" {% if (exchange1c_relatedoptions == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_dont_use_artsync" class="col-sm-2 control-label">{{ entry_dont_use_artsync }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_dont_use_artsync" {% if (exchange1c_dont_use_artsync == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_dont_use_artsync" {% if (exchange1c_dont_use_artsync == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{{ watermark_fieldset }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_apply_watermark" class="col-sm-2 control-label">{{ watermark_apply }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_apply_watermark" {% if (exchange1c_apply_watermark == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_apply_watermark" {% if (exchange1c_apply_watermark == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_watermark" class="col-sm-2 control-label">{{ watermark_image }}</label>
+                  <div class="col-sm-10">
+                    <a href="" data-toggle="image" class="img-thumbnail">
+                      <img src="{{ thumb }}" alt="" data-placeholder="{{ placeholder }}">
+                    </a>
+                    <input type="hidden" name="exchange1c_watermark" id="exchange1c_watermark" value="{{ exchange1c_watermark }}" id="image">
+                    {% if (error_image) %}
+                    <span class="error">{{ error_image }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{{ price_types_fieldset }}</legend>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover table-striped" id="exchange1c_price_type_id">
+                    <thead>
+                      <tr>
+                        <th>{{ entry_config_price_type }}</th>
+                        <th>{{ entry_customer_group }}</th>
+                        <th>{{ entry_quantity }}</th>
+                        <th>{{ entry_priority }}</th>
+                        <th class="text-right"> {{ column_action }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% set price_row = 0 %}
+                      {% for obj in exchange1c_price_type %}
+                        {% if (price_row == 0) %}
+                          <tr id="exchange1c_price_type_row{{ price_row }}">
+                            <td>
+                              <input type="text" name="exchange1c_price_type[{{ price_row }}][keyword]" value="{{ obj['keyword'] }}" class="form-control">
+                            </td>
+                            <td>{{ text_price_default }}
+                              <input type="hidden" name="exchange1c_price_type[{{ price_row }}][customer_group_id]" value="0">
+                            </td>
+                            <td>-
+                              <input type="hidden" name="exchange1c_price_type[{{ price_row }}][quantity]" value="1">
+                            </td>
+                            <td>-
+                              <input type="hidden" name="exchange1c_price_type[{{ price_row }}][priority]" value="0">
+                            </td>
+                            <td>&nbsp;</td>
+                          </tr>
+                        {% else %}
+                          <tr id="exchange1c_price_type_row{{ price_row }}">
+                            <td>
+                              <input type="text" name="exchange1c_price_type[{{ price_row }}][keyword]" value="{{ obj['keyword'] }}" class="form-control">
+                            </td>
+                            <td>
+                              <select name="exchange1c_price_type[{{ price_row }}][customer_group_id]" class="form-control">
+                              {% for customer_group in customer_groups %}
+                                {% if (customer_group['customer_group_id'] == obj['customer_group_id']) %}
+                                  <option value="{{ customer_group['customer_group_id'] }}" selected="selected">{{ customer_group['name'] }}</option>
+                                }
+                                {% else %}
+                                  <option value="{{ customer_group['customer_group_id'] }}">{{ customer_group['name'] }}</option>
+                                {% endif %}
+                              {% endfor %}
+                              </select>
+                            </td>
+                            <td>
+                              <input type="text" name="exchange1c_price_type[{{ price_row }}][quantity]" value="{{ obj['quantity'] }}" size="2" class="form-control">
+                            </td>
+                            <td>
+                              <input type="text" name="exchange1c_price_type[{{ price_row }}][priority]" value="{{ obj['priority'] }}" size="2" class="form-control">
+                            </td>
+                            <td class="text-right">
+                              <a onclick="$('#exchange1c_price_type_row{{ price_row }}').remove();" class="btn btn-danger" data-original-title="{{ button_remove }}" data-toggle="tooltip">
+                                <i class="fa fa-trash-o"></i>
+                              </a>
+                            </td>
+                          </tr>
+                        {% endif %}
+                        {% set price_row = price_row + 1 %}
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="4"></td>
+                        <td class="text-right">
+                          <a onclick="addConfigPriceType();" class="btn btn-success" data-original-title="{{ button_insert }}" data-toggle="tooltip">
+                            <i class="fa fa-plus-circle"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </fieldset>              
+            </div>
+
+            <div class="tab-pane" id="tab-order">
+              <fieldset>
+                <legend>{{ order_general_fieldset }}</legend>
+                <div class="form-group">
+                  <label for="exchange1c_order_status_to_exchange" class="col-sm-2 control-label">{{ entry_order_status_to_exchange }}</label>
+                  <div class="col-sm-10">
+                    <select name="exchange1c_order_status_to_exchange" id="exchange1c_order_status_to_exchange" class="form-control">
+                      <option value="0" {% if (exchange1c_order_status_to_exchange == 0) %} selected="" {% endif %}>{{ entry_order_status_to_exchange_not }}</option>
+                      {% for order_status in order_statuses %}
+                        <option value="{{ order_status['order_status_id'] }}" {% if (exchange1c_order_status_to_exchange == order_status['order_status_id']) %} selected="" {% endif %}>{{ order_status['name'] }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_order_status" class="col-sm-2 control-label">{{ entry_order_status }}</label>
+                  <div class="col-sm-10">
+                    <select name="exchange1c_order_status" id="exchange1c_order_status" class="form-control">
+                      {% for order_status in order_statuses %}
+                        <option value="{{ order_status['order_status_id']}}" {% if (exchange1c_order_status == order_status['order_status_id']) %} selected="" {% endif %} >{{ order_status['name'] }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_order_currency" class="col-sm-2 control-label">{{ entry_order_currency }}</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="exchange1c_order_currency" name="exchange1c_order_currency" value="{{ exchange1c_order_currency }}">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="exchange1c_order_notify" class="col-sm-2 control-label">{{ entry_order_notify }}</label>
+                  <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" value="1" name="exchange1c_order_notify" {% if (exchange1c_order_notify == 1) %} checked="checked" {% endif %}>
+                      {{ text_yes }}
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" value="0" name="exchange1c_order_notify" {% if (exchange1c_order_notify == 0) %} checked="checked" {% endif %}>
+                      {{ text_no }}
+                    </label>
+                  </div>
+                </div>
+              </fieldset>              
+            </div>
+
+            <div class="tab-pane" id="tab-manual">
+              <div class="form-group required">
+                <label for="button-upload" class="col-sm-2 control-label">
+                  <span data-toggle="tooltip" data-original-title="{{ text_max_filesize }}">{{ entry_upload }}</span>
+                </label>
+                <div class="col-sm-10">
+                  <button class="btn btn-primary" id="button-upload" type="button">
+                    <i class="fa fa-upload"></i>
+                    {{ button_upload }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <p>{{ version }} | <a href="https://github.com/vstrizhakov/opencart-exchange1c" target="_blank">{{ source_code }}</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- <script type="text/javascript" src="view/javascript/jquery/ajaxupload.js"></script> 
+<script type="text/javascript">
+new AjaxUpload('#button-upload', {
+  action: 'index.php?route=module/exchange1c/manualImport&token={{ token }}',
+  name: 'file',
+  autoSubmit: true,
+  responseType: 'json',
+  onSubmit: function(file, extension) {
+    $('#button-upload').after('<img src="view/image/loading.gif" class="loading" style="padding-left: 5px;" />');
+    $('#button-upload').attr('disabled', true);
+  },
+  onComplete: function(file, json) {
+    $('#button-upload').attr('disabled', false);
+    $('.loading').remove();
+
+    if (json['success']) {
+      alert(json['success']);
+    }
+
+    if (json['error']) {
+      alert(json['error']);
+    }
+  }
+});
+</script> -->
+<script type="text/javascript">
+var price_row = {{ price_row }};
+
+function addConfigPriceType() {
+    html  = '';
+    html += '  <tr id="exchange1c_price_type_row' + price_row + '">'; 
+    html += '    <td><input type="text" name="exchange1c_price_type[' + price_row + '][keyword]" value="" class="form-control"></td>';
+    html += '    <td><select name="exchange1c_price_type[' + price_row + '][customer_group_id]" class="form-control">';
+      {% for customer_group in customer_groups %}
+    html += '      <option value="{{ customer_group['customer_group_id'] }}">{{ customer_group['name']}}</option>';
+    {% endfor %}
+    html += '    </select></td>';
+    html += '    <td><input type="text" name="exchange1c_price_type[' + price_row + '][quantity]" value="1" size="2" class="form-control"></td>';
+    html += '    <td><input type="text" name="exchange1c_price_type[' + price_row + '][priority]" value="0" size="2" class="form-control"></td>';
+    html += '    <td class="text-right"><a onclick="$(\'#exchange1c_price_type_row' + price_row + '\').remove();" class="btn btn-danger" data-toggle="tooltip" data-original-title="{{ button_remove }}"><i class="fa fa-trash-o"></i></a></td>';
+    html += '  </tr>';
+
+    $('#exchange1c_price_type_id tbody').append(html);
+
+    $('#config_price_type_row' + price_row + ' .date').datepicker({dateFormat: 'yy-mm-dd'});
+    price_row++;
+}
+</script>
+
+{{ footer }}
