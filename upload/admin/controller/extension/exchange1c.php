@@ -156,16 +156,10 @@ class ControllerExtensionExchange1c extends Controller {
 			$data['exchange1c_order_status_to_exchange'] = $this->config->get('exchange1c_order_status_to_exchange');
 		}
 		
-		if (isset($this->request->post['exchange1c_instock_stock_status_id'])) {
-			$data['exchange1c_instock_stock_status_id'] = $this->request->post['exchange1c_instock_stock_status_id'];
+		if (isset($this->request->post['exchange1c_default_stock_status_id'])) {
+			$data['exchange1c_default_stock_status_id'] = $this->request->post['exchange1c_default_stock_status_id'];
 		} else {
-			$data['exchange1c_instock_stock_status_id'] = $this->config->get('exchange1c_instock_stock_status_id');
-		}
-		
-		if (isset($this->request->post['exchange1c_outofstock_stock_status_id'])) {
-			$data['exchange1c_outofstock_stock_status_id'] = $this->request->post['exchange1c_outofstock_stock_status_id'];
-		} else {
-			$data['exchange1c_outofstock_stock_status_id'] = $this->config->get('exchange1c_outofstock_stock_status_id');
+			$data['exchange1c_default_stock_status_id'] = $this->config->get('exchange1c_default_stock_status_id');
 		}
 		
 		if (isset($this->request->post['exchange1c_dont_use_artsync'])) {
